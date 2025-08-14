@@ -1,0 +1,8 @@
+﻿name,schema_name,etl_name
+orders,sales_schema,etl1
+order_items,sales_schema,etl1
+products,inventory_schema,etl2
+stock_levels,inventory_schema,etl2
+customers,customer_schema,etl3
+employees,hr_schema,etl4
+transactions,finance_schema,etl5
