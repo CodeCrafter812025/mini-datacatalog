@@ -77,6 +77,3 @@ def health():
         return {"status":"ok"}
     except Exception as e:
         return {"status":"error","detail": str(e)}
-# serve a minimal frontend (static files)
-from fastapi.staticfiles import StaticFiles
-app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
