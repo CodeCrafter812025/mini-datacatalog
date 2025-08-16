@@ -1,0 +1,167 @@
+﻿{
+    "info": {
+        "_postman_id": "mini-datacatalog",
+        "name": "Mini Data Catalog API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/health",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["health"]
+                }
+            }
+        },
+        {
+            "name": "Get Token",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/x-www-form-urlencoded",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "urlencoded",
+                    "urlencoded": [
+                        {
+                            "key": "username",
+                            "value": "admin",
+                            "type": "text"
+                        },
+                        {
+                            "key": "password",
+                            "value": "admin123",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:8000/token",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["token"]
+                }
+            }
+        },
+        {
+            "name": "Get Data Sources",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_TOKEN",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8000/meta/datasources",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["meta", "datasources"]
+                }
+            }
+        },
+        {
+            "name": "Get ETL Names",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_TOKEN",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8000/etl/names",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["etl", "names"]
+                }
+            }
+        },
+        {
+            "name": "Get ETL Tables",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_TOKEN",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8000/etl/etl1/tables",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["etl", "etl1", "tables"]
+                }
+            }
+        },
+        {
+            "name": "Execute ETL",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_TOKEN",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8000/etl/etl1/execute",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["etl", "etl1", "execute"]
+                }
+            }
+        },
+        {
+            "name": "Create Database Connection",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_TOKEN",
+                        "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"Test DB\",\n  \"host\": \"localhost\",\n  \"port\": 5432,\n  \"username\": \"admin\",\n  \"password\": \"admin123\",\n  \"database_name\": \"testdb\",\n  \"connection_type\": \"postgresql\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8000/db/connections",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["db", "connections"]
+                }
+            }
+        }
+    ]
+}

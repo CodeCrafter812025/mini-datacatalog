@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+﻿from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.sql import func
 from datetime import datetime
 from .database import Base
@@ -25,3 +25,16 @@ class User(Base):
     hashed_password = Column(String(100), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class DatabaseConnection(Base):
+    __tablename__ = "database_connections"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    host = Column(String)
+    port = Column(Integer)
+    username = Column(String)
+    password = Column(String)
+    database_name = Column(String)
+    connection_type = Column(String)  # postgresql, mysql, etc.
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

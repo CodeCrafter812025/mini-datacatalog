@@ -1,79 +1,38 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from typing import List
-import csv, io, os, uuid, logging
-import pandas as pd
+﻿from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from .. import models
-from ..auth import get_current_active_user
 from ..database import get_db
+from ..models import DataSource, TableMeta
+import csv
+import os
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
 
-UPLOAD_DIR = 'uploads'
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+def tm_to_dict(tm: TableMeta):
+    return {
+        "id": tm.id,
+        "schema_name": tm.schema_name,
+        "table_name": tm.table_name,
+        "description": tm.description,
+        "source_id": tm.source_id
+    }
 
-@router.post('/analyze')
-async def analyze_etl(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
-    if not (file.filename and file.filename.lower().endswith('.csv')):
-        raise HTTPException(status_code=400, detail='Please upload a CSV file.')
-    contents = await file.read()
-    try:
-        text = contents.decode('utf-8')
-    except UnicodeDecodeError:
-        text = contents.decode('latin-1')
-    tokens = []
-    seen = set()
-    try:
-        df = pd.read_csv(io.StringIO(text))
-        for col in df.columns:
-            for val in df[col].dropna().unique():
-                val_str = str(val).strip().lstrip('\\ufeff')
-                if val_str and val_str not in seen:
-                    seen.add(val_str)
-                    tokens.append(val_str)
-    except Exception as e:
-        logger.error(f'Error processing CSV: {e}')
-        raise HTTPException(status_code=400, detail=f'Error processing CSV: {e}')
-    unique_name = f"{uuid.uuid4().hex}.csv"
-    path = os.path.join(UPLOAD_DIR, unique_name)
-    try:
-        with open(path, 'wb') as out_f:
-            out_f.write(contents)
-    except Exception as e:
-        logger.error(f'Error saving file: {e}')
-        raise HTTPException(status_code=500, detail=f'Error saving file: {e}')
-    ds = db.query(models.DataSource).filter(models.DataSource.name == file.filename).first()
-    if ds:
-        ds.path = path
-        db.add(ds)
-        db.commit()
-        db.refresh(ds)
-    else:
-        ds = models.DataSource(name=file.filename, path=path)
-        db.add(ds)
-        try:
-            db.commit()
-            db.refresh(ds)
-        except IntegrityError:
-            db.rollback()
-            ds = db.query(models.DataSource).filter(models.DataSource.name == file.filename).first()
-            if not ds:
-                raise HTTPException(status_code=500, detail='Could not create DataSource')
-    created = []
-    for t in tokens:
-        exists = db.query(models.TableMeta).filter(models.TableMeta.table_name == t, models.TableMeta.source_id == ds.id).first()
-        if exists:
-            continue
-        new_tm = models.TableMeta(schema_name='', table_name=t, description=None, source_id=ds.id)
-        db.add(new_tm)
-        try:
-            db.commit()
-            db.refresh(new_tm)
-            created.append({'id': new_tm.id, 'table_name': new_tm.table_name})
-        except IntegrityError:
-            db.rollback()
-            continue
-    return {'filename': file.filename, 'items_count': len(tokens), 'created': created}
+@router.get("/names")
+def get_etl_names():
+    etl_names = []
+    csv_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "etl_names.csv")
+    with open(csv_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            etl_names.append(row['name'])
+    return etl_names
 
+@router.get("/{name}/tables", response_model=list)
+def get_etl_tables(name: str, db: Session = Depends(get_db)):
+    data_sources = db.query(DataSource).filter(DataSource.etl_name == name).all()
+    source_ids = [ds.id for ds in data_sources]
+    tables = db.query(TableMeta).filter(TableMeta.source_id.in_(source_ids)).all()
+    return [tm_to_dict(tm) for tm in tables]
+
+@router.post("/{name}/execute")
+def execute_etl(name: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    return {"message": f"ETL process '{name}' started successfully."}
