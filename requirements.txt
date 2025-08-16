@@ -4,3 +4,4 @@ requests
 numpy
 pandas
 Flask-SQLAlchemy
+psycopg2-binary
