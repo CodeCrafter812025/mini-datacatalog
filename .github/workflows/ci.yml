@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+﻿name: CI/CD Pipeline
 
 on:
   push:
@@ -37,18 +37,22 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Install psql client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
 
     - name: Run migrations
+      env:
+        PGPASSWORD: catalogpass
       run: |
-        # Wait for PostgreSQL to be ready
+        # Wait for PostgreSQL service (provided by Actions services) to be ready
         until pg_isready -h localhost -p 5432 -U catalog; do sleep 1; done
-        # Run migrations
-        docker cp ./migrations/001_initial.sql postgres:/tmp/001_initial.sql
-        docker cp ./migrations/002_sample_data.sql postgres:/tmp/002_sample_data.sql
-        docker cp ./migrations/003_users.sql postgres:/tmp/003_users.sql
-        docker compose exec db psql -U catalog -d gnaf -f /tmp/001_initial.sql
-        docker compose exec db psql -U catalog -d gnaf -f /tmp/002_sample_data.sql
-        docker compose exec db psql -U catalog -d gnaf -f /tmp/003_users.sql
+
+        # Execute migration files directly against localhost
+        psql -h localhost -p 5432 -U catalog -d gnaf -f migrations/001_initial.sql
+        psql -h localhost -p 5432 -U catalog -d gnaf -f migrations/002_sample_data.sql
+        psql -h localhost -p 5432 -U catalog -d gnaf -f migrations/003_users.sql
 
     - name: Run tests
       run: |
@@ -67,3 +71,4 @@ jobs:
       run: |
         echo "Deploying to production..."
         # Add your deployment commands here
+
