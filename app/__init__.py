@@ -9,3 +9,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'
 db = SQLAlchemy(app)
 
 from app import routes, models
+
+# ایجاد جداول در دیتابیس در صورت عدم وجود
+with app.app_context():
+    db.create_all()

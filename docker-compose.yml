@@ -1,6 +1,4 @@
-﻿version: '3.8'
-
-services:
+﻿services:
   app:
     build: .
     ports:
@@ -11,6 +9,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://admin:admin123@db:5432/catalogdb
     volumes:
+      - ./templates:/app/templates
+      - ./static:/app/static
       - ./data:/app/data
       - ./logs:/app/logs
     networks:
@@ -27,7 +27,7 @@ services:
       - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
       - ./seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d catalogdb"]
       interval: 5s
       timeout: 5s
       retries: 5
