@@ -120,6 +120,4 @@ curl -X POST "http://localhost:8000/meta/tables" \
   }'
 \\\
 
-## مجوز
 
-این پروژه تحت مجوز MIT منتشر شده است.
