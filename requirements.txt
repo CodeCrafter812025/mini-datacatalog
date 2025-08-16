@@ -3,3 +3,4 @@ pytest
 requests
 numpy
 pandas
+Flask-SQLAlchemy
