@@ -13,3 +13,4 @@ pytest
 httpx
 pytest-asyncio
 bcrypt>=3.2.0
+flask==2.3.3
