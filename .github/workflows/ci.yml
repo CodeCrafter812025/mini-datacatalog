@@ -46,9 +46,9 @@ jobs:
         docker cp ./migrations/001_initial.sql postgres:/tmp/001_initial.sql
         docker cp ./migrations/002_sample_data.sql postgres:/tmp/002_sample_data.sql
         docker cp ./migrations/003_users.sql postgres:/tmp/003_users.sql
-        docker exec postgres psql -U catalog -d gnaf -f /tmp/001_initial.sql
-        docker exec postgres psql -U catalog -d gnaf -f /tmp/002_sample_data.sql
-        docker exec postgres psql -U catalog -d gnaf -f /tmp/003_users.sql
+        docker compose exec db psql -U catalog -d gnaf -f /tmp/001_initial.sql
+        docker compose exec db psql -U catalog -d gnaf -f /tmp/002_sample_data.sql
+        docker compose exec db psql -U catalog -d gnaf -f /tmp/003_users.sql
 
     - name: Run tests
       run: |
