@@ -1,27 +1,33 @@
-﻿services:
+﻿version: '3.8'
+
+services:
   app:
     build: .
     ports:
-      - '8000:8000'
+      - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://admin:admin123@db:5432/catalogdb
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
     networks:
       - app-network
 
   db:
     image: postgres:15
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=catalogdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./create-db.sh:/docker-entrypoint-initdb.d/01-create-db.sh
-      - ./create-tables.sh:/docker-entrypoint-initdb.d/02-create-tables.sh
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U admin"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -31,8 +37,8 @@
   mailhog:
     image: mailhog/mailhog
     ports:
-      - '1025:1025'
-      - '8025:8025'
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - app-network
 
