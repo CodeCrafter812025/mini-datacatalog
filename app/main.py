@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 import time
 import logging
 import sys
@@ -58,9 +58,10 @@ def on_startup():
 
 
 # include routers (keep same as before)
-from .routers import etl, meta, auth
+from .routers import etl, meta, auth, database
 
 app.include_router(etl.router, prefix="/etl", tags=["ETL"])
+app.include_router(database.router, prefix="/db", tags=["database"])
 app.include_router(meta.router, prefix="/meta", tags=["Meta"])
 app.include_router(auth.router, tags=["Authentication"])
 
@@ -80,3 +81,5 @@ def health():
 # serve a minimal frontend (static files)
 from fastapi.staticfiles import StaticFiles
 app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
+
+
