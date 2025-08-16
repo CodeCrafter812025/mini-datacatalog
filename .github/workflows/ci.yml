@@ -9,9 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
-      db:
+      postgres: # نام سرویس را به "postgres" تغییر دهید
         image: postgres:13-alpine
         env:
           POSTGRES_DB: test_db
@@ -27,26 +27,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
-      - name: Wait for PostgreSQL
+
+      - name: Wait for PostgreSQL to be ready
         run: |
-          # این اسکریپت با استفاده از nc (netcat) منتظر می‌مونه تا پورت 5432 دیتابیس باز بشه
-          for i in `seq 1 10`; do
-            nc -z localhost 5432 && echo "PostgreSQL is ready!" && break
-            echo "Waiting for PostgreSQL..."
-            sleep 1
-          done
-      
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          until pg_isready -h localhost -p 5432 -U test_user; do sleep 1; done
+
+      - name: Run migrations (optional)
+        env:
+          PGPASSWORD: test_password
+        run: |
+          psql -h localhost -p 5432 -U test_user -d test_db -f migrations/001_initial.sql || true
+
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db # اتصال به localhost
         run: |
           python -m pytest -v
