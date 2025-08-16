@@ -10,7 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    # 1. بخش services رو اینجا اضافه کنید
     services:
       db:
         image: postgres:13-alpine
@@ -37,7 +36,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # 2. متغیر محیطی DATABASE_URL رو به بخش Run tests اضافه کنید
+      - name: Wait for PostgreSQL
+        run: |
+          # این اسکریپت با استفاده از nc (netcat) منتظر می‌مونه تا پورت 5432 دیتابیس باز بشه
+          for i in `seq 1 10`; do
+            nc -z db 5432 && echo "PostgreSQL is ready!" && break
+            echo "Waiting for PostgreSQL..."
+            sleep 1
+          done
+      
       - name: Run tests
         env:
           DATABASE_URL: postgresql://test_user:test_password@db:5432/test_db
