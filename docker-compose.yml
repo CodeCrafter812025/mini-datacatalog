@@ -1,4 +1,5 @@
-﻿services:
+﻿version: '3.8'
+services:
   app:
     build: .
     ports:
@@ -9,8 +10,8 @@
     environment:
       - DATABASE_URL=postgresql://admin:admin123@db:5432/catalogdb
     volumes:
-      - ./templates:/app/templates
-      - ./static:/app/static
+      - ./templates:/app/app/templates
+      - ./static:/app/app/static
       - ./data:/app/data
       - ./logs:/app/logs
     networks:

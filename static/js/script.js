@@ -19,28 +19,28 @@
             const result = await response.json();
             
             if (response.ok) {
-                uploadMessage.innerHTML = 
+                uploadMessage.innerHTML = \
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle-fill"></i> 
+                        <i class="bi bi-check-circle-fill"></i> \
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                ;
+                \;
                 loadETLs(); // به‌روزرسانی لیست
             } else {
-                uploadMessage.innerHTML = 
+                uploadMessage.innerHTML = \
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill"></i> خطا: 
+                        <i class="bi bi-exclamation-triangle-fill"></i> خطا: \
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                ;
+                \;
             }
         } catch (error) {
-            uploadMessage.innerHTML = 
+            uploadMessage.innerHTML = \
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle-fill"></i> خطا در ارتباط با سرور
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            ;
+            \;
         }
     });
     
@@ -54,13 +54,13 @@
             etlList.innerHTML = '';
             
             if (Object.keys(etls).length === 0) {
-                etlList.innerHTML = 
+                etlList.innerHTML = \
                     <div class="col-12 text-center py-4">
                         <div class="alert alert-warning">
                             <i class="bi bi-info-circle-fill"></i> هیچ ETLی یافت نشد
                         </div>
                     </div>
-                ;
+                \;
                 return;
             }
             
@@ -69,34 +69,34 @@
                 col.className = 'col-md-6 col-lg-4 mb-3';
                 
                 const tablesBadges = tables.map(table => 
-                    <span class="table-badge"></span>
+                    \<span class="table-badge">\</span>\
                 ).join('');
                 
-                col.innerHTML = 
+                col.innerHTML = \
                     <div class="card etl-card h-100">
                         <div class="card-body">
                             <div class="etl-name">
-                                <i class="bi bi-gear-fill"></i> 
+                                <i class="bi bi-gear-fill"></i> \
                             </div>
                             <div class="tables-list">
                                 <strong>جداول:</strong><br>
-                                
+                                \
                             </div>
                         </div>
                     </div>
-                ;
+                \;
                 
                 etlList.appendChild(col);
             });
         } catch (error) {
             const etlList = document.getElementById('etlList');
-            etlList.innerHTML = 
+            etlList.innerHTML = \
                 <div class="col-12 text-center py-4">
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i> خطا در دریافت اطلاعات
                     </div>
                 </div>
-            ;
+            \;
         }
     }
     
