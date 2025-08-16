@@ -1,16 +1,6 @@
-﻿-- ایجاد کاربر admin
-CREATE USER admin WITH PASSWORD 'admin123';
-ALTER USER admin CREATEDB;
-
--- ایجاد دیتابیس‌ها
-CREATE DATABASE catalogdb OWNER admin;
-CREATE DATABASE gnaf OWNER admin;
-
--- اعطای دسترسی‌ها
-GRANT ALL PRIVILEGES ON DATABASE catalogdb TO admin;
-GRANT ALL PRIVILEGES ON DATABASE gnaf TO admin;
-
--- ایجاد جداول در دیتابیس catalogdb
+﻿#!/bin/bash
+# ایجاد جداول
+psql -U admin -d catalogdb -c "
 CREATE TABLE data_sources (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
@@ -47,7 +37,7 @@ CREATE TABLE database_connections (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- افزودن کاربر admin پیش‌فرض
 INSERT INTO users (username, hashed_password) VALUES 
-('admin', '')
+('admin', '\\\')
 ON CONFLICT (username) DO NOTHING;
+"
