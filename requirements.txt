@@ -9,3 +9,6 @@ psycopg2-binary
 httpx
 fastapi
 python-jose[cryptography]
+
+passlib[bcrypt]
+passlib[bcrypt]
