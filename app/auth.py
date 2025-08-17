@@ -7,6 +7,8 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from .database import get_db
 from . import models
+# در ابتدای فایل auth.py
+from app.models import User
 
 # Config (???? ??? ?? env ?? production)
 SECRET_KEY = "change-this-secret-in-production"
