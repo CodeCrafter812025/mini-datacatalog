@@ -1,10 +1,10 @@
 ﻿from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from .database import Base
 
 class User(Base):
     __tablename__ = "users"
-    
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), unique=True, nullable=False)
@@ -18,7 +18,6 @@ class User(Base):
 
 class DataSource(Base):
     __tablename__ = "data_sources"
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), unique=True, nullable=False)
     type = Column(String(50), nullable=True)
@@ -34,7 +33,6 @@ class DataSource(Base):
 
 class TableMeta(Base):
     __tablename__ = "table_meta"
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
@@ -45,16 +43,11 @@ class TableMeta(Base):
     def __repr__(self):
         return f"<TableMeta id={self.id} name={self.name} datasource_id={self.datasource_id}>"
 
-# افزودن رابطه معکوس برای کاربر
+# رابطه معکوس برای کاربر و DataSource
 User.data_sources = relationship("DataSource", order_by=DataSource.id, back_populates="owner")
-
-
-
-from sqlalchemy.sql import func
 
 class DatabaseConnection(Base):
     __tablename__ = 'database_connections'
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     host = Column(String(255), nullable=False)
@@ -66,4 +59,4 @@ class DatabaseConnection(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
-        return f\"<DatabaseConnection id={self.id} name={self.name} host={self.host}:{self.port}>\"
+        return f"<DatabaseConnection id={self.id} name={self.name} host={self.host}:{self.port}>"
