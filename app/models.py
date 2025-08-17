@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, Text, ForeignKey
+﻿from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -47,3 +47,4 @@ class TableMeta(Base):
 
 # افزودن رابطه معکوس برای کاربر
 User.data_sources = relationship("DataSource", order_by=DataSource.id, back_populates="owner")
+
