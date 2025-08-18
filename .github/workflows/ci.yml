@@ -1,4 +1,4 @@
-name: Python CI
+﻿name: Python CI
 
 on:
   push:
@@ -9,9 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
 
     services:
-      postgres: # نام سرویس را به "postgres" تغییر دهید
+      postgres:
         image: postgres:13-alpine
         env:
           POSTGRES_DB: test_db
@@ -38,20 +40,46 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Wait for PostgreSQL to be ready
+      - name: Install psql client
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-          until pg_isready -h localhost -p 5432 -U test_user; do sleep 1; done
 
-      - name: Run migrations (optional)
+      - name: Wait for PostgreSQL to be ready
         env:
           PGPASSWORD: test_password
         run: |
-          psql -h localhost -p 5432 -U test_user -d test_db -f migrations/001_initial.sql || true
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U test_user && break
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+
+      - name: Run migrations / seed DB (if present)
+        env:
+          PGPASSWORD: test_password
+        run: |
+          # اگر فایل‌ها وجود دارند آنها را اجرا کن، در غیر اینصورت این مرحله خطا ندهد (|| true)
+          if [ -f migrations/001_initial.sql ]; then
+            psql -h localhost -U test_user -d test_db -f migrations/001_initial.sql || true
+          fi
+          if [ -f migrations/002_sample_data.sql ]; then
+            psql -h localhost -U test_user -d test_db -f migrations/002_sample_data.sql || true
+          fi
+          if [ -f migrations/003_users.sql ]; then
+            psql -h localhost -U test_user -d test_db -f migrations/003_users.sql || true
+          fi
+
+      - name: Print DB tables (debug)
+        env:
+          PGPASSWORD: test_password
+        run: |
+          psql -h localhost -U test_user -d test_db -c "\dt" || true
+          psql -h localhost -U test_user -d test_db -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';" || true
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db # اتصال به localhost
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
         run: |
           python -m pytest -v
+
