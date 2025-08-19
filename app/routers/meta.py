@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+﻿from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from .. import models
 from ..auth import get_current_active_user
@@ -10,8 +10,8 @@ def _ds_to_dict(ds: models.DataSource):
     return {
         "id": ds.id,
         "name": ds.name,
-        "path": ds.path,
-        "created_at": ds.created_at.isoformat() if ds.created_at is not None else None
+        "path": getattr(ds, "path", getattr(ds, "connection_string", None)),
+        "created_at": getattr(ds, "created_at", None).isoformat() if getattr(ds, "created_at", None) is not None else None
     }
 
 def _tm_to_dict(tm: models.TableMeta):
