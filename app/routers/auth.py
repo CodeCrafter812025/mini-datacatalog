@@ -1,22 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from datetime import timedelta
-from ..database import get_db
-from .. import models
-from ..auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
+# app/routers/auth.py
+from flask import Blueprint, request, jsonify, current_app
+from jose import jwt
+from werkzeug.security import check_password_hash
+from app.models import User
+from app import db
+import datetime
 
-router = APIRouter()
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@router.post('/token')
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
+@bp.route('/token', methods=['POST'])
+def token():
+    data = request.get_json() or {}
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({"error":"username and password required"}), 400
+
+    user = User.query.filter_by(username=username).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password", headers={"WWW-Authenticate": "Bearer"})
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+        return jsonify({"error":"invalid credentials"}), 401
 
-@router.get('/users/me')
-def read_users_me(current_user: models.User = Depends(get_current_active_user)):
-    return {"username": current_user.username, "is_active": current_user.is_active}
+    if not check_password_hash(user.hashed_password, password):
+        return jsonify({"error":"invalid credentials"}), 401
+
+    payload = {
+        "sub": user.id,
+        "username": user.username,
+        "exp": int((datetime.datetime.utcnow() + datetime.timedelta(hours=8)).timestamp())
+    }
+    token = jwt.encode(payload, current_app.config.get("SECRET_KEY", "your-secret-key"), algorithm="HS256")
+    return jsonify({"access_token": token, "token_type": "bearer"})
