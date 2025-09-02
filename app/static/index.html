@@ -1,57 +1,117 @@
-﻿<!doctype html>
-<html>
+﻿<!-- app/static/index.html -->
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Mini DataCatalog - Frontend</title>
-  <style>
-    body { font-family: Arial, Helvetica, sans-serif; margin: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-  </style>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mini DataCatalog</title>
+  <!-- favicon embed to avoid 404 -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='8' fill='%231a1f3b'/%3E%3Cpath d='M12 20h40v8H12zm0 16h26v8H12z' fill='%237c5cff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/style.css"/>
 </head>
 <body>
-  <h1>Mini DataCatalog - Datasources</h1>
-  <p>برای مشاهدهٔ داده‌ها، توکن (JWT) را در کادر زیر قرار بده و دکمهٔ Load رو بزن.</p>
-  <input id="token" style="width:80%" placeholder="Paste JWT here"/>
-  <button id="btn">Load datasources</button>
-  <pre id="out"></pre>
-  <table id="tbl" style="display:none">
-    <thead><tr><th>id</th><th>name</th><th>path</th><th>created_at</th></tr></thead>
-    <tbody id="body"></tbody>
-  </table>
+  <div class="container">
+    <div class="header">
+      <h1>Mini DataCatalog</h1>
+      <span class="badge">Demo</span>
+    </div>
 
-  <script>
-    const btn = document.getElementById('btn');
-    const out = document.getElementById('out');
-    const tbl = document.getElementById('tbl');
-    const body = document.getElementById('body');
+    <div class="grid">
+      <!-- Auth -->
+      <div class="card">
+        <h3>Auth</h3>
+        <div class="control">
+          <label>Username</label><input id="username" value="admin" />
+        </div>
+        <div class="control">
+          <label>Password</label><input id="password" value="admin123" type="password" />
+        </div>
+        <div class="control">
+          <button id="btnLogin">Login</button>
+          <span class="small">ابتدا لاگین کن.</span>
+        </div>
+        <div class="control"><label>Auth</label><div class="output" id="outAuth"></div></div>
+        <div class="control"><label>Me</label><div class="output" id="outMe"></div></div>
+      </div>
 
-    btn.onclick = async () => {
-      const token = document.getElementById('token').value.trim();
-      if (!token) { alert('توکن را وارد کنید'); return; }
-      out.textContent = 'Loading...';
-      try {
-        const resp = await fetch('/meta/datasources', {
-          headers: { Authorization: 'Bearer ' + token }
-        });
-        if (!resp.ok) {
-          out.textContent = 'HTTP ' + resp.status + '\\n' + await resp.text();
-          tbl.style.display = 'none';
-          return;
-        }
-        const data = await resp.json();
-        out.textContent = JSON.stringify(data, null, 2);
-        body.innerHTML = '';
-        (data.items||[]).forEach(it => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${it.id}</td><td>${it.name}</td><td>${it.path}</td><td>${it.created_at}</td>`;
-          body.appendChild(tr);
-        });
-        tbl.style.display = data.items && data.items.length ? 'table' : 'none';
-      } catch (e) {
-        out.textContent = 'Fetch error: ' + e.toString();
-      }
-    };
-  </script>
+      <!-- CSV Preview -->
+      <div class="card">
+        <h3>Preview CSV</h3>
+        <div class="control">
+          <label>CSV File</label>
+          <input id="csvFile" type="file"
+                 accept=".csv,text/csv,.txt,application/vnd.ms-excel,text/plain"/>
+        </div>
+        <div class="control">
+          <label>Max Rows</label><input id="maxRows" type="number" value="5" />
+        </div>
+        <div class="control">
+          <button id="btnPreview">Preview CSV</button>
+        </div>
+        <div class="control"><label>Result</label><div class="output" id="outPreview"></div></div>
+      </div>
+
+      <!-- CSV Load -->
+      <div class="card">
+        <h3>Load CSV to Postgres</h3>
+        <div class="control"><label>Conn ID</label><input id="connId" value="1"/></div>
+        <div class="control"><label>Schema</label><input id="schema" value="sales"/></div>
+        <div class="control"><label>Table</label><input id="tableName" value="csv_import"/></div>
+        <div class="control">
+          <label>If Exists</label>
+          <select id="ifExists">
+            <option value="append" selected>append</option>
+            <option value="replace">replace</option>
+            <option value="fail">fail</option>
+          </select>
+        </div>
+        <div class="control">
+          <button id="btnLoad">Load CSV</button>
+        </div>
+        <div class="control"><label>Result</label><div class="output" id="outLoad"></div></div>
+      </div>
+
+      <!-- Upload dump -->
+      <div class="card">
+        <h3>Upload DB Dump</h3>
+        <div class="control">
+          <label>Dump File</label>
+          <input id="dumpFile" type="file" accept=".sql,.dump,.bak,.gz,.zip"/>
+        </div>
+        <div class="control">
+          <button id="btnUploadDump">Upload Dump</button>
+        </div>
+        <div class="control"><label>Result</label><div class="output" id="outDump"></div></div>
+      </div>
+
+      <!-- Info panels -->
+      <div class="card">
+        <h3>ETLs</h3>
+        <div class="output" id="outEtlNames"></div>
+      </div>
+      <div class="card">
+        <h3>DB Connections</h3>
+        <div class="output" id="outConnections"></div>
+      </div>
+    </div>
+  </div>
+
+<section id="audit" dir="rtl" style="margin-top:2rem">
+  <h2 style="margin-bottom: .5rem;">گزارش رویدادها (Audit)</h2>
+
+  <div class="card" style="padding: .75rem; margin-bottom: .75rem;">
+    <label for="audit-limit">حداکثر ردیف:</label>
+    <input id="audit-limit" type="number" min="1" max="500" value="50" style="width: 90px; margin-inline: .5rem;" />
+    <button id="btn-audit-refresh" class="btn">بروزرسانی</button>
+    <button id="btn-audit-export" class="btn">دریافت CSV</button>
+    <span id="audit-hint" style="margin-inline-start: .75rem; opacity:.8;"></span>
+  </div>
+
+  <div id="audit-table" class="table-responsive"></div>
+</section>
+
+
+  <script src="/static/js/script.js?v=5"></script>
 </body>
 </html>

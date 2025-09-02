@@ -1,16 +1,16 @@
--- ???????? ?????: ???? ????? ????
+-- مایگریشن اولیه: ساخت جداول اصلی
 
--- ???? schema ??? ???? ?????
+-- ساخت schema اگر وجود ندارد
 CREATE SCHEMA IF NOT EXISTS catalog_test;
 
--- ???? schemas
+-- جدول schemas
 CREATE TABLE IF NOT EXISTS catalog_test.schemas (
     id SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ???? tables_name
+-- جدول tables_name
 CREATE TABLE IF NOT EXISTS catalog_test.tables_name (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS catalog_test.tables_name (
     FOREIGN KEY (schema_id) REFERENCES catalog_test.schemas(id)
 );
 
--- ???? etl_processes
+-- جدول etl_processes
 CREATE TABLE IF NOT EXISTS catalog_test.etl_processes (
     id SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS catalog_test.etl_processes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ???? etl_table_relations
+-- جدول etl_table_relations
 CREATE TABLE IF NOT EXISTS catalog_test.etl_table_relations (
     id SERIAL PRIMARY KEY,
     etl_id INTEGER REFERENCES catalog_test.etl_processes(id),
