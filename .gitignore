@@ -139,3 +139,20 @@ Thumbs.db
 
 # Docker
 .dockerignore
+
+
+# cleanup
+.venv/
+__pycache__/
+*.pyc
+logs/
+uploads/
+*.db
+*.bak
+openapi.json
+cleanup_backup_*.zip
+.pytest_cache/
+mini-datacatalog/
+backups/
+bak_archive_*/
+

@@ -1,22 +1,21 @@
-﻿FROM python:3.11-slim
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# نصب وابستگی‌های سیستمی
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev curl && rm -rf /var/lib/apt/lists/*
-
-# کپی و نصب وابستگی‌های پایتون
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# کپی فایل‌های پروژه
+# مهم: uvicorn ساده، نه uvicorn[standard]
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir uvicorn watchfiles
+
 COPY . .
 
-# ایجاد دایرکتوری برای لاگ‌ها
-RUN mkdir -p logs
+RUN mkdir -p logs samples
 
-# افشای پورت
-EXPOSE 5000
-
-# دستور اجرای برنامه
-CMD ["python", "run.py"]
+EXPOSE 8000
+# در dev از --reload استفاده می‌کنیم (watchfiles نصب شده است)
+CMD ["uvicorn", "fastapi_app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

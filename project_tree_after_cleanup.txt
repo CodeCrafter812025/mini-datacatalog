@@ -1,0 +1,121 @@
+Folder PATH listing
+Volume serial number is 753B-A3B0
+C:.
+|   .dockerignore
+|   .env
+|   .gitignore
+|   catalog-test-data
+|   ci-at-51451df.yml
+|   cleanup_backup_20250901-171949.zip
+|   create-db.sh
+|   create-tables.sh
+|   create_admin_user.py
+|   docker-compose.dev.yml
+|   docker-compose.yml
+|   Dockerfile
+|   fastapi_app.py
+|   fix_users_table.py
+|   init.sql
+|   init_db.py
+|   init_db.sql
+|   load_csv_data.py
+|   Mini Data Catalog API.postman_collection.json
+|   print_meta.py
+|   project_tree_after_cleanup.txt
+|   python-ci-at-51451df.yml
+|   README.md
+|   requirements.txt
+|   run.py
+|   schemas_data.sql
+|   seed_data.sql
+|   show_sqlite.py
+|   str
+|   tables_name_data.sql
+|   transfer_db.py
+|   
++---.github
+|   \---workflows
+|           ci.yml.disabled
+|           python-ci.yml
+|           
++---app
+|   |   auth.py
+|   |   database.py
+|   |   docker-compose.dev.yml
+|   |   email_utils.py
+|   |   main.py
+|   |   models.py
+|   |   reset_admin.py
+|   |   routes.py
+|   |   seed_etl.py
+|   |   __init__.py
+|   |   __init__flask_backup.py
+|   |   
+|   +---routers
+|   |       auth.py
+|   |       database.py
+|   |       etl.py
+|   |       meta.py
+|   |       __init__.py
+|   |       
+|   \---static
+|           index.html
+|           
++---bak_archive_20250828-231622
+|       bak_archive_20250828-231622_app_auth.py.bak
+|       bak_archive_20250828-231622_app_database.py.bak
+|       bak_archive_20250828-231622_app_main.py.bak
+|       bak_archive_20250828-231622_app_models.py.bak
+|       bak_archive_20250828-231622_app_routers_auth.py.bak
+|       bak_archive_20250828-231622_app_routers_etl.py.bak
+|       bak_archive_20250828-231622_app_routers_meta.py.bak
+|       bak_archive_20250828-231622_app_routers___init__.py.bak
+|       bak_archive_20250828-231622_app_routes.py.bak
+|       bak_archive_20250828-231622_app___init__.py.bak
+|       bak_archive_20250828-231622_bak_archive_20250828-231622_.env.bak
+|       bak_archive_20250828-231622_docker-compose.yml.bak
+|       bak_archive_20250828-231622_Dockerfile.bak
+|       bak_archive_20250828-231622_run.py.bak
+|       bak_archive_20250828-231622_test.db.bak
+|       
++---data
++---migrations
+|   |   001_initial.sql
+|   |   002_sample_data.sql
+|   |   003_users.sql
+|   |   004_create_data_sources.sql
+|   |   
+|   \---migrations
+|       \---migrations
+|               002_sample_data.sql
+|               
++---samples
+|       etl_names.csv
+|       etl_tables.csv
+|       mini.csv
+|       new_test_etl.csv
+|       sample.csv
+|       sample2.csv
+|       schemas.csv
+|       simple_test.csv
+|       tables.csv
+|       tables_name.csv
+|       test_upload.csv
+|       test_upload_etl.csv
+|       test_upload_fixed.csv
+|       
++---static
+|   +---css
+|   |       style.css
+|   |       
+|   \---js
+|           script.js
+|           
++---templates
+|       index.html
+|       
+\---tests
+        conftest.py
+        test_main.py
+        __init__.py
+        

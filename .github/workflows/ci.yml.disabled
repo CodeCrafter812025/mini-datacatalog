@@ -55,19 +55,20 @@ jobs:
             sleep 2
           done
 
-      - name: Run migrations / seed DB (if present)
+      - name: Run migrations / seed DB (run all files in migrations/)
         env:
           PGPASSWORD: test_password
         run: |
-          # اگر فایل‌ها وجود دارند آنها را اجرا کن، در غیر اینصورت این مرحله خطا ندهد (|| true)
-          if [ -f migrations/001_initial.sql ]; then
-            psql -h localhost -U test_user -d test_db -f migrations/001_initial.sql || true
-          fi
-          if [ -f migrations/002_sample_data.sql ]; then
-            psql -h localhost -U test_user -d test_db -f migrations/002_sample_data.sql || true
-          fi
-          if [ -f migrations/003_users.sql ]; then
-            psql -h localhost -U test_user -d test_db -f migrations/003_users.sql || true
+          # اگر دایرکتوری migrations وجود دارد، همه‌ی *.sql را اجرا کن
+          if [ -d migrations ]; then
+            for f in migrations/*.sql; do
+              if [ -f "$f" ]; then
+                echo "Running migration: $f"
+                psql -h localhost -U test_user -d test_db -f "$f" || true
+              fi
+            done
+          else
+            echo "No migrations directory found, skipping."
           fi
 
       - name: Print DB tables (debug)
@@ -82,4 +83,3 @@ jobs:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
         run: |
           python -m pytest -v
-

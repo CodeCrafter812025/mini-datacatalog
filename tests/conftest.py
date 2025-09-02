@@ -1,35 +1,28 @@
-﻿import time
+﻿import io
 import pytest
-from sqlalchemy import text
-from app import create_app, db as _db
+from fastapi.testclient import TestClient
+from fastapi_app import app  # اپ FastAPI از همین فایل می‌آید
 
-@pytest.fixture(scope='session')
-def app():
-    # ساخت اپلیکیشن
-    app = create_app()
+@pytest.fixture(scope="session")
+def client():
+    return TestClient(app)
 
-    # انتظار برای آماده شدن دیتابیس (حداکثر 30 تلاش)
-    engine = _db.get_engine(app)
-    for i in range(30):
-        try:
-            with engine.connect() as conn:
-                conn.execute(text('SELECT 1'))
-            break
-        except Exception:
-            time.sleep(1)
-    else:
-        raise RuntimeError('Database did not become available within timeout')
+@pytest.fixture(scope="session")
+def token(client):
+    # یوزر/پسورد از .env: admin / admin123
+    resp = client.post(
+        "/token",
+        data={"username": "admin", "password": "admin123"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    assert resp.status_code == 200, resp.text
+    return resp.json()["access_token"]
 
-    # ایجاد جداول برای تست‌ها
-    with app.app_context():
-        _db.create_all()
+@pytest.fixture
+def auth_headers(token):
+    return {"Authorization": f"Bearer {token}"}
 
-    yield app
-
-    # teardown: حذف جداول بعد از پایان session
-    with app.app_context():
-        _db.drop_all()
-
-@pytest.fixture(scope='function')
-def db(app):
-    return _db
+@pytest.fixture
+def sample_csv_bytes():
+    data = "name,schema,etl\nsample_table,public,etl1\n"
+    return io.BytesIO(data.encode("utf-8"))

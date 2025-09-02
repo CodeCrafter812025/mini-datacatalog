@@ -4,13 +4,12 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from jose import jwt
 
-# import the Flask-SQLAlchemy instance and models
+# استفاده مستقیم از db ساخته‌شده در app/__init__.py
 from app import db
-from app import models
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# تنظیمات توکن
+# تنظیمات token
 ALGO = "HS256"
 EXPIRE_MINUTES = 60
 
@@ -28,8 +27,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return check_password_hash(hashed_password, plain_password)
 
 def get_user_by_username(username: str):
-    # دسترسی مستقیم به db.session از SQLAlchemy instance
-    return db.session.query(models.User).filter_by(username=username).first()
+    from app.models import User
+    return db.session.query(User).filter_by(username=username).first()
+
 
 def decode_token(token: str):
     try:
@@ -40,17 +40,18 @@ def decode_token(token: str):
 
 @bp.route("/token", methods=["POST"])
 def token():
-    # debug: لاگ هدرها و داده خام تا ببینیم client چی فرستاده
-    try:
-        raw = request.get_data(as_text=True)
-        current_app.logger.debug("auth/token headers=%s", dict(request.headers))
-        current_app.logger.debug("auth/token raw_body=%s", raw)
-        data = request.get_json(silent=True) or {}
-        current_app.logger.debug("auth/token parsed_json=%s", data)
-    except Exception as e:
-        current_app.logger.exception("failed to read request data: %s", e)
-        data = {}
 
+    # debug temporary — print incoming raw request to container stderr
+    try:
+        current_app.logger.debug("AUTH_DEBUG headers: %r", dict(request.headers))
+        current_app.logger.debug("AUTH_DEBUG content_type: %r", request.content_type)
+        current_app.logger.debug("AUTH_DEBUG raw body: %r", request.get_data(as_text=True))
+    except Exception:
+        pass
+
+
+    # انتظار: JSON { "username": "...", "password": "..." }
+    data = request.get_json(silent=True) or {}
     username = data.get("username")
     password = data.get("password")
     if not username or not password:
